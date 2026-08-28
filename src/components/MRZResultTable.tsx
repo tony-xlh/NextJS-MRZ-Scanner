@@ -1,5 +1,6 @@
-import { CodeParser, CodeParserModule } from "dynamsoft-code-parser";
-import { CoreModule } from "dynamsoft-core";
+import "../configure"; // license + CDN engine paths, executed on the client only
+import { CodeParser, CodeParserModule } from "dynamsoft-capture-vision-bundle";
+import type { ParsedResultItem } from "dynamsoft-capture-vision-bundle";
 import { useEffect, useRef, useState } from "react";
 import "./MRZResultTable.css"
 
@@ -30,13 +31,7 @@ const MRZResultTable: React.FC<MRZResultTableProps> = (props:MRZResultTableProps
   },[props.MRZ])
 
   const initCodeParser = async () => {
-    CoreModule.engineResourcePaths.dcp = "https://cdn.jsdelivr.net/npm/dynamsoft-code-parser@2.2.10/dist/";
-    await CodeParserModule.loadSpec("MRTD_TD1_ID");
-    await CodeParserModule.loadSpec("MRTD_TD2_FRENCH_ID")
-    await CodeParserModule.loadSpec("MRTD_TD2_ID")
-    await CodeParserModule.loadSpec("MRTD_TD2_VISA")
-    await CodeParserModule.loadSpec("MRTD_TD3_PASSPORT")  
-    await CodeParserModule.loadSpec("MRTD_TD3_VISA")
+    await CodeParserModule.loadSpec(["MRTD_TD1_ID","MRTD_TD2_FRENCH_ID","MRTD_TD2_ID","MRTD_TD2_VISA","MRTD_TD3_PASSPORT","MRTD_TD3_VISA"]);
     parser.current = await CodeParser.createInstance();
   }
 
@@ -60,6 +55,7 @@ const MRZResultTable: React.FC<MRZResultTableProps> = (props:MRZResultTableProps
       setFields(null);
     }
   }
+
   return (
     <>
       {!fields && (

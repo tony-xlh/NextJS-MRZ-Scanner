@@ -9,13 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "dynamsoft-camera-enhancer": "^4.0.2",
-    "dynamsoft-capture-vision-router": "^2.2.30",
-    "dynamsoft-code-parser": "^2.2.10",
-    "dynamsoft-core": "^3.2.30",
-    "dynamsoft-label-recognizer": "^3.2.30",
-    "dynamsoft-license": "^3.2.21",
-    "dynamsoft-utility": "^1.2.20",
+    "dynamsoft-capture-vision-bundle": "3.4.3000",
     "next": "14.2.5",
     "react": "^18",
     "react-dom": "^18"
@@ -27,3 +21,4 @@
     "typescript": "^5"
   }
 }
+

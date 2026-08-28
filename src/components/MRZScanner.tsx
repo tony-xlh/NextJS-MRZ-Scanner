@@ -1,11 +1,7 @@
-import "dynamsoft-license";
-import "dynamsoft-capture-vision-router";
-import "dynamsoft-label-recognizer";
-import { CameraEnhancer, CameraView } from "dynamsoft-camera-enhancer";
-import { CaptureVisionRouter, CapturedResultReceiver } from "dynamsoft-capture-vision-router";
-import { CoreModule } from "dynamsoft-core";
+import "../configure"; // license + CDN engine paths, executed on the client only
+import { CaptureVisionRouter, CameraEnhancer, CameraView } from "dynamsoft-capture-vision-bundle";
+import type { RecognizedTextLinesResult } from "dynamsoft-capture-vision-bundle";
 import { MutableRefObject, useEffect, useRef } from "react";
-import { LabelRecognizerModule, RecognizedTextLinesResult } from "dynamsoft-label-recognizer";
 import React from "react";
 
 export interface MRZScannerProps{
@@ -35,7 +31,7 @@ const MRZScanner: React.FC<MRZScannerProps> = (props:MRZScannerProps) => {
     if (initialized.current == false) {
       initialized.current = true;
       await initCameraEnhancer();
-      await initLabelRecognizer();
+      await initCaptureVisionRouter();
       if (props.onInitialized) {
         props.onInitialized();
       }
@@ -45,23 +41,24 @@ const MRZScanner: React.FC<MRZScannerProps> = (props:MRZScannerProps) => {
     }
   }
 
-  const initLabelRecognizer = async () => {
-    // Preload "LabelRecogznier" module for recognizing text. It will save time on the initial recognizing by skipping the module loading.
-    await CoreModule.loadWasm(["DLR"]);
-    await LabelRecognizerModule.loadRecognitionData("MRZ");
+  const initCaptureVisionRouter = async () => {
+    // Preload the deep-learning models used by the MRZ template so the first
+    // recognition does not pay the download cost.
+    await CaptureVisionRouter.appendDLModelBuffer(["MRZCharRecognition", "MRZTextLineRecognition"]);
     router.current = await CaptureVisionRouter.createInstance();
-    router.current.initSettings("/template.json");
+    // Load the MRZ text line specifications from the custom template file.
+    await router.current.initSettings("/template.json");
     // Define a callback for results.
-    const resultReceiver = new CapturedResultReceiver();
-    resultReceiver.onRecognizedTextLinesReceived = (result: RecognizedTextLinesResult) => {
-      console.log(result);
-      if (props.onScanned) {
-        props.onScanned(result);
+    router.current.addResultReceiver({
+      onRecognizedTextLinesReceived: (result: RecognizedTextLinesResult) => {
+        console.log(result);
+        if (props.onScanned) {
+          props.onScanned(result);
+        }
       }
-    };
-    router.current.addResultReceiver(resultReceiver);
+    });
     if (cameraEnhancer.current) {
-      router.current.setInput(cameraEnhancer.current);
+      await router.current.setInput(cameraEnhancer.current);
     }
   }
 

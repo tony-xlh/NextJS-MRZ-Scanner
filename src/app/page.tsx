@@ -1,16 +1,17 @@
 "use client"
 import styles from "./page.module.css";
 import { useState } from "react";
-import { RecognizedTextLinesResult } from "dynamsoft-label-recognizer";
-import "../configure" //import the configure file to run configuration
-import MRZResultTable from "@/components/MRZResultTable";
+import type { RecognizedTextLinesResult } from "dynamsoft-capture-vision-bundle";
 import dynamic from "next/dynamic";
+// The Dynamsoft bundle touches `window` at import time, so all components that
+// load it must be rendered client-side only.
 const MRZScanner = dynamic(
   () => import("../components/MRZScanner"),
   {
     ssr: false,
   }
 );
+const MRZResultTable = dynamic(() => import("@/components/MRZResultTable"), { ssr: false });
 export default function Home() {
   const [isScanning,setIsScanning] = useState(false);
   const [initialized,setInitialized] = useState(false);
